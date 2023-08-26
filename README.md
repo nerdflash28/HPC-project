@@ -56,6 +56,7 @@ cat /var/log/warewulfd.log
 wwctl container import docker://warewulf/rocky rocky-8
 
 # sync host uid & gid with the container
+wwctl overlay build
 wwctl container syncuser --write rocky-8
 
 # to check container list
@@ -239,7 +240,11 @@ systemctl start slurmd;systemctl enable slurmd;
 ```
 ![](./images/slurm_conf.jpg)
 
-
+## Step 9: to sync the the user with containers we use the command
+```bash
+wwctl overlay build
+wwctl container syncuser --write rocky-8
+``` 
 
 
 
