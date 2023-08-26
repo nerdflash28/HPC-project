@@ -242,9 +242,49 @@ systemctl start slurmd;systemctl enable slurmd;
 
 ## Step 9: to sync the the user with containers we use the command
 ```bash
+# to rebuild the overlays 
 wwctl overlay build
 wwctl container syncuser --write rocky-8
+
+# to debug error in slurmd 
+slurmd -Dvv
 ``` 
+---
+# Installing Prometheus
+
+## Step 1: downloading the zip file
+```bash
+# download the tar file 
+wget https://github.com/prometheus/prometheus/releases/download/v2.45.0/prometheus-2.45.0.linux-amd64.tar.gz
+```
+![](./images/prometheus/1.jpg)
+
+## Step 2: Unzip the package
+```bash
+# unziping the tar file
+tar -xvf prometheus-*.tar.gz
+```
+![](./images/prometheus/2.jpg)
+
+## Step 3: prepare the prometheus.yml file
+```bash
+cd prometheus-*
+vim prometheus.yml 
+    Line no 3: change time from 15s to 10s
+    Line no 4: change time from 15s to 10s
+    Line no 31: create new job name : node
+    Line no 36-37: create targets entries 
+```
+![](./images/prometheus/2.jpg)
+![](./images/prometheus/3.jpg)
+![](./images/prometheus/4.jpg)
+
+## Step 4: setup the warewulf container
+```bash
+
+
+```
+![](./images/prometheus/5.jpg)
 
 
 
