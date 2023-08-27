@@ -299,18 +299,33 @@ dnf install ganglia ganglia-gmond -y
 ```bash
 vim /etc/ganglia/gmond.conf
     line no 30: give the cluster name
+    line no 31: set the owner name
     line no 50: give the master ip address
     line no 57: comment this line
     line no 59: comment this line
 ```
+![](./images/Ganglia/10.jpg)
+![](./images/Ganglia/11.jpg)
 
 
 ## Step 6: Start the services on container: 
 ```bash
+# service get started after nodes get booted
 systemctl start gmond 
 systemctl enable gmond 
 systemctl status gmond 
 ```
+## Step 7: Rebuild container
+```bash
+# this command will sync host user to container 
+wwctl container syncuser --write rocky-8
+# this command will build overlay for given container
+wwctl overlay build 
+# this command rebuild the container forcefully
+wwctl container build -f rocky-8
+``` 
+![](./images/Ganglia/12.jpg)
+
 
 
 
