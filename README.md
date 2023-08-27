@@ -250,43 +250,67 @@ wwctl container syncuser --write rocky-8
 slurmd -Dvv
 ``` 
 ---
-# Installing Prometheus
+# Installing Ganglia
 
-## Step 1: downloading the zip file
+## Step 1: Installing the Ganglia on master node
 ```bash
-# download the tar file 
-wget https://github.com/prometheus/prometheus/releases/download/v2.45.0/prometheus-2.45.0.linux-amd64.tar.gz
+dnf install epel-release -y
+dnf install ganglia ganglia-gmetad ganglia-gmond ganglia-web -y
 ```
-![](./images/prometheus/1.jpg)
+![](./images/Ganglia/1.jpg)
+![](./images/Ganglia/2.jpg)
 
-## Step 2: Unzip the package
+## Step 2: Edit the conf files on master node
 ```bash
-# unziping the tar file
-tar -xvf prometheus-*.tar.gz
-```
-![](./images/prometheus/2.jpg)
+# on master 
+vim /etc/ganglia/gmetad.conf
+    line no 44: Change the cluster name
 
-## Step 3: prepare the prometheus.yml file
+
+vim /etc/ganglia/gmond.conf
+    line no 30: give the cluster name
+    line no 31: set the owner name
+    line no 50: give the master ip address
+    line no 57: comment this line
+    line no 59: comment this line
+```
+![](./images/Ganglia/3.jpg)
+![](./images/Ganglia/4.jpg)
+![](./images/Ganglia/5.jpg)
+
+## Step 3: Start the services on master: 
 ```bash
-cd prometheus-*
-vim prometheus.yml 
-    Line no 3: change time from 15s to 10s
-    Line no 4: change time from 15s to 10s
-    Line no 31: create new job name : node
-    Line no 36-37: create targets entries 
+systemctl start gmetad gmond httpd
+systemctl enable gmetad gmond httpd
+systemctl status gmetad gmond httpd
 ```
-![](./images/prometheus/2.jpg)
-![](./images/prometheus/3.jpg)
-![](./images/prometheus/4.jpg)
+![](./images/Ganglia/6.jpg)
+![](./images/Ganglia/7.jpg)
 
-## Step 4: setup the warewulf container
+## Step 4: Installing the Ganglia on Container 
 ```bash
-
-
+dnf install epel-release -y
+dnf install ganglia ganglia-gmond -y
 ```
-![](./images/prometheus/5.jpg)
+![](./images/Ganglia/8.jpg)
+![](./images/Ganglia/9.jpg)
+
+## Step 5: Edit the gmond.conf file on Container 
+```bash
+vim /etc/ganglia/gmond.conf
+    line no 30: give the cluster name
+    line no 50: give the master ip address
+    line no 57: comment this line
+    line no 59: comment this line
+```
 
 
+## Step 6: Start the services on container: 
+```bash
+systemctl start gmond 
+systemctl enable gmond 
+systemctl status gmond 
+```
 
 
 
