@@ -326,6 +326,12 @@ wwctl container build -f rocky-8
 ``` 
 ![](./images/Ganglia/12.jpg)
 
+## Step 8: after successfully booting up the node
+```bash
+# Results
+```
+![](./images/Ganglia/13.jpg)
+![](./images/Ganglia/14.jpg)
 
 
 
