@@ -55,9 +55,6 @@ cat /var/log/warewulfd.log
 # import container from docker hub
 wwctl container import docker://warewulf/rocky rocky-8
 
-# sync host uid & gid with the container
-wwctl overlay build
-wwctl container syncuser --write rocky-8
 
 # to check container list
 wwctl container list
@@ -69,6 +66,10 @@ wwctl container exec rocky-8 /bin/bash
         new password : root
         re enter password : root
     exit
+    
+# sync host uid & gid with the container
+wwctl overlay build
+wwctl container syncuser --write rocky-8
 ```
 
 ## Step 4 : Add a node 
