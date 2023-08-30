@@ -76,7 +76,8 @@ wwctl container syncuser --write rocky-8
 ```bash
 # to add a node without knowing MAC address
 wwctl node add node1 --ipaddr 10.10.10.232 --discoverable ens34
-wwctl node add node1 --ipaddr 10.10.10.245 --discoverable ens34
+
+# to add a container to a given node
 wwctl node set --container rocky-8 node1
 ```
 \# Note : `if this error shows: hub_port_status failed (err = 110)`  
@@ -87,14 +88,30 @@ wwctl node set --container rocky-8 node1
 
 ## Step 1: Install munge service on both master & container
 ```bash
+# installing epel-release repository
 dnf install epel-release -y
+
+# adding powertools repository
 dnf config-manager --set-enabled powertools
+
+# installing munge packages
 dnf install munge* -y
+
+# intalling rng-tools used for gathering harware entropy
 dnf install rng-tools.x86_64 -y
 dnf repolist
+
+# starting the random number generator demon
 systemctl start rngd
 systemctl enable rngd
 systemctl status rngd
+```
+
+```
+Randome number generator
+to generate secure cryptographic keys that cannot be easily broken, a source of random numbers is required. Generally, the more random the numbers are, the better the chance of obtaining unique keys. Entropy for generating random numbers is usually obtained from computing environmental “noise” or using a hardware random number generator.
+
+The rngd daemon, which is a part of the rng-tools package, is capable of using both environmental noise and hardware random number generators for extracting entropy.
 ```
 ![](./images/epel-release.jpg)
 ![](./images/yum-repolist.jpg)
@@ -107,7 +124,7 @@ systemctl status rngd
 /usr/sbin/create-munge-key -r
 
 # copy the monge key to container
-wwctl container exec --bind /root/Documents/temp:/root/temp rocky-8 /bin/bash
+wwctl container exec --bind [path on master]:[path on container] [container name] /bin/bash
 
 # copy the munge file 
 cp /etc/munge/munge.key root/Documents/temp
@@ -155,16 +172,6 @@ groupadd -g $SLURMUSER slurm;
 # create user
 useradd -m -c "SLURM workload manager" -d /var/lib/slurm -u $SLURMUSER -g slurm -s /bin/bash slurm;
 
-export MUNGEUSER=973;
-# add group
-groupadd -g $MUNGEUSER munge;
-# create user
-useradd -m -c "Runs Uid 'N' Gid Emporium" -d /var/lib/munge -u $MUNGEUSER -g munge -s /sbin/nologin munge;
-
-
-munge:x:975:973:Runs Uid 'N' Gid Emporium:/var/run/munge:/sbin/nologin
-useradd -m -c "Runs Uid 'N' Gid Emporium" -d /var/lib/munge -u 97 -g munge -s /sbin/nologin 
-
 cat /etc/passwd | grep slurm;
 ```
 ![](./images/create-slurm-user.jpg)
@@ -188,7 +195,7 @@ cp * /root/test/;
 ![](./images/confirm-rpm-packages.jpg)
 ![](./images/installing-slurm-packages-on-container.jpg)
 
-## Step 7: creating repositories for slurm configuration
+## Step 7: creating repositories for slurm on master & node
 ```bash
 # create folder 
 mkdir /var/spool/slurm
@@ -216,7 +223,10 @@ chown slurm:slurm /var/log/slurm_jobacct.log /var/log/slurm_jobcomp.log
 ## Step 8: Edit the configuration file 
 
 ```bash
+# copy the example config file 
 cp /etc/slurm/slurm.conf.example /etc/slurm/slurm.conf
+
+# edit the config file and add node entry
 vi /etc/slurm/slurm.conf
     edit : clusterName=warewulf-cluster
     edit : clusterMachine=master
@@ -227,15 +237,18 @@ vi /etc/slurm/slurm.conf
             ParitionName=standard NODES=ALL Default=YES MaxTime=INFINITE State=UP
             :wq # save and exit
 
-# run on client and get the satus of the node and paste this information in the configuration file
+# run on client and get the satus of the node(but node has to be in booted state) and paste this information in the configuration file
 slurmd -C
 
+# give ownership to slurm 
 chown slurm:slurm /etc/slurm/slurm.conf
-# copy this config file to all the nodes
+
+# copy this config file to shared folder on the nodes
 cp /etc/slurm/slurm.conf /root/Documents/slurm/
 
 # start slurmctld service on master
 systemctl start slurmctld;systemctl enable slurmctld;
+
 # start slurmd service on node1
 systemctl start slurmd;systemctl enable slurmd;
 ```
